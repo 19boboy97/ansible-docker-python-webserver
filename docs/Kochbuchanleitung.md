@@ -76,6 +76,7 @@ Beim ersten Start werden automatisch:
 * Ubuntu 22.04 heruntergeladen
 * Die virtuelle Maschine erstellt
 * Die VM gestartet
+* Ansible installiert
 
 Dieser Schritt kann mehrere Minuten dauern.
 
