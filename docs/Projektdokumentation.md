@@ -85,6 +85,9 @@ Als Endergebnis soll ein Benutzer über einen Webbrowser auf die Anwendung zugre
 
 # 5. Systemarchitektur
 
+## Architekturdiagramm
+![Architekturdiagramm](../images/ArchitekturDerUmgebung.png)
+
 Die Umgebung besteht aus einer Ubuntu-VM, welche mit Vagrant erstellt wird.
 
 Innerhalb der VM installiert Ansible automatisch Docker und startet zwei Container:
