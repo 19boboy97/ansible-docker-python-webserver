@@ -79,19 +79,9 @@ vagrant@ansible-webserver:~$
 
 ---
 
-## 4. Ansible installieren
+## 4. Ansible prüfen
 
-Paketlisten aktualisieren:
-
-```bash
-sudo apt update
-```
-
-Ansible installieren:
-
-```bash
-sudo apt install -y ansible
-```
+Ansible wird automatisch durch Vagrant installiert.
 
 Kontrolle:
 
