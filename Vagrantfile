@@ -9,4 +9,9 @@ Vagrant.configure("2") do |config|
     vb.memory = "2048"
     vb.cpus = 2
   end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    apt update
+    apt install -y ansible
+  SHELL
 end
