@@ -1,10 +1,10 @@
-# Kochbuchanleitung – Projekt auf einem neuen Windows 11 Client starten
+# Kochbuchanleitung – Umgebung auf einem neuen Windows 11 Client starten
 
 ## Ziel
 
-Mit dieser Anleitung kann das Projekt auf einem anderen Windows 11 Computer vollständig neu gestartet werden.
+Mit dieser Anleitung kann das Projekt auf einem neuen Windows 11 Computer vollständig eingerichtet und gestartet werden.
 
-Nach Abschluss der Schritte ist die Anwendung über folgende Adresse erreichbar:
+Nach erfolgreicher Durchführung ist die Anwendung erreichbar unter:
 
 ```text
 http://localhost:8080
@@ -12,28 +12,30 @@ http://localhost:8080
 
 ---
 
-## Voraussetzungen
+# Voraussetzungen
 
 Folgende Software muss installiert sein:
 
-| Software           | Zweck                           |
-| ------------------ | ------------------------------- |
-| Git                | Repository herunterladen        |
-| VirtualBox         | Virtualisierung                 |
-| Vagrant            | Erstellung der Ubuntu-VM        |
-| Internetverbindung | Download von Ubuntu und Paketen |
+| Software           | Zweck                            |
+| ------------------ | -------------------------------- |
+| Git                | Repository herunterladen         |
+| VirtualBox         | Virtualisierung                  |
+| Vagrant            | Erstellung und Verwaltung der VM |
+| Internetverbindung | Download von Ubuntu und Paketen  |
 
 ---
 
-## 1. Repository herunterladen
+# 1. Repository herunterladen
 
-PowerShell öffnen und ein Verzeichnis auswählen:
+PowerShell öffnen.
+
+In ein gewünschtes Verzeichnis wechseln:
 
 ```powershell
-cd D:\Github
+cd C:\GithubRepo
 ```
 
-Repository klonen:
+Repository herunterladen:
 
 ```powershell
 git clone https://github.com/19boboy97/ansible-docker-python-webserver.git
@@ -47,7 +49,21 @@ cd ansible-docker-python-webserver
 
 ---
 
-## 2. Virtuelle Maschine erstellen
+# 2. Projekt aktualisieren
+
+Vor jedem Start sollte geprüft werden, ob neue Änderungen im Repository vorhanden sind.
+
+Neueste Version von GitHub herunterladen:
+
+```powershell
+git pull
+```
+
+Dadurch werden alle aktuellen Änderungen übernommen.
+
+---
+
+# 3. Virtuelle Maschine erstellen oder starten
 
 VM starten:
 
@@ -65,13 +81,13 @@ Dieser Schritt kann mehrere Minuten dauern.
 
 ---
 
-## 3. Verbindung zur VM herstellen
+# 4. Verbindung zur VM herstellen
 
 ```powershell
 vagrant ssh
 ```
 
-Nach erfolgreicher Verbindung erscheint eine Linux-Konsole:
+Nach erfolgreicher Anmeldung erscheint:
 
 ```text
 vagrant@ansible-webserver:~$
@@ -79,9 +95,7 @@ vagrant@ansible-webserver:~$
 
 ---
 
-## 4. Ansible prüfen
-
-Ansible wird automatisch durch Vagrant installiert.
+# 5. Ansible prüfen
 
 Kontrolle:
 
@@ -89,9 +103,24 @@ Kontrolle:
 ansible --version
 ```
 
+Wenn eine Versionsnummer angezeigt wird, ist Ansible installiert.
+
+Falls Ansible nicht installiert ist:
+
+```bash
+sudo apt update
+sudo apt install -y ansible
+```
+
+Danach erneut prüfen:
+
+```bash
+ansible --version
+```
+
 ---
 
-## 5. Zum Playbook wechseln
+# 6. Zum Playbook wechseln
 
 ```bash
 cd /vagrant/ansible/playbooks
@@ -99,7 +128,7 @@ cd /vagrant/ansible/playbooks
 
 ---
 
-## 6. Ansible Playbook ausführen
+# 7. Ansible Playbook ausführen
 
 Playbook starten:
 
@@ -107,7 +136,7 @@ Playbook starten:
 ANSIBLE_ROLES_PATH=/vagrant/ansible/roles ansible-playbook site.yml -i ../inventory/hosts.yml
 ```
 
-Ansible führt nun automatisch folgende Aufgaben aus:
+Das Playbook führt automatisch folgende Aufgaben aus:
 
 * Docker installieren
 * Docker-Dienst starten
@@ -118,7 +147,7 @@ Ansible führt nun automatisch folgende Aufgaben aus:
 
 ---
 
-## 7. Kontrolle der Container
+# 8. Container prüfen
 
 Laufende Container anzeigen:
 
@@ -137,9 +166,9 @@ Beide Container müssen den Status **Up** besitzen.
 
 ---
 
-## 8. Anwendung testen
+# 9. Anwendung testen
 
-Webbrowser auf dem Windows-Host öffnen.
+Auf dem Windows-Host einen Browser öffnen.
 
 Adresse aufrufen:
 
@@ -157,7 +186,7 @@ Der Zugriff erfolgt über Nginx als Reverse Proxy.
 
 ---
 
-## 9. Projekt stoppen
+# 10. Projekt stoppen
 
 VM stoppen:
 
@@ -167,7 +196,7 @@ vagrant halt
 
 ---
 
-## 10. Projekt erneut starten
+# 11. Projekt erneut starten
 
 VM starten:
 
@@ -191,17 +220,68 @@ ANSIBLE_ROLES_PATH=/vagrant/ansible/roles ansible-playbook site.yml -i ../invent
 
 ---
 
-## Troubleshooting
+# 12. Umgebung vollständig neu erstellen
 
-### Port 8080 bereits belegt
+Falls die Umgebung komplett neu aufgebaut werden soll:
 
-Prüfen, ob bereits ein Dienst auf Port 8080 läuft.
+VM löschen:
 
-Alternativ die Portweiterleitung im Vagrantfile anpassen.
+```powershell
+vagrant destroy -f
+```
+
+Danach erneut erstellen:
+
+```powershell
+vagrant up
+```
+
+Anschliessend:
+
+```powershell
+vagrant ssh
+```
+
+Und erneut das Playbook ausführen.
 
 ---
 
-### Docker läuft nicht
+# Troubleshooting
+
+## Repository existiert bereits
+
+Fehlermeldung:
+
+```text
+destination path already exists
+```
+
+Lösung:
+
+```powershell
+Remove-Item -Recurse -Force ansible-docker-python-webserver
+```
+
+Danach erneut:
+
+```powershell
+git clone https://github.com/19boboy97/ansible-docker-python-webserver.git
+```
+
+---
+
+## Ansible nicht installiert
+
+Installation:
+
+```bash
+sudo apt update
+sudo apt install -y ansible
+```
+
+---
+
+## Docker läuft nicht
 
 Status prüfen:
 
@@ -217,31 +297,58 @@ sudo systemctl start docker
 
 ---
 
-### Container fehlen
+## Container fehlen
 
 Playbook erneut ausführen:
 
 ```bash
+cd /vagrant/ansible/playbooks
+
 ANSIBLE_ROLES_PATH=/vagrant/ansible/roles ansible-playbook site.yml -i ../inventory/hosts.yml
 ```
 
 ---
 
-## Ergebnis
+## Port 8080 bereits belegt
 
-Nach erfolgreicher Durchführung dieser Anleitung steht die komplette Umgebung automatisch zur Verfügung:
+Falls Port 8080 bereits verwendet wird, muss die Portweiterleitung im Vagrantfile angepasst werden.
 
-* Ubuntu VM
-* Ansible
-* Docker
-* Docker Netzwerk
-* Nginx Reverse Proxy
-* Python Webserver
+Beispiel:
 
-Die Anwendung ist anschliessend über
+```ruby
+config.vm.network "forwarded_port", guest: 8080, host: 8081
+```
+
+Danach ist die Anwendung erreichbar unter:
+
+```text
+http://localhost:8081
+```
+
+---
+
+# Ergebnis
+
+Nach erfolgreicher Durchführung dieser Anleitung läuft folgende Umgebung:
+
+```text
+Windows 11
+│
+├── VirtualBox
+│
+└── Ubuntu VM
+    │
+    ├── Ansible
+    │
+    └── Docker
+        │
+        ├── Nginx Reverse Proxy
+        │
+        └── Python Webserver
+```
+
+Die Anwendung ist anschliessend erreichbar unter:
 
 ```text
 http://localhost:8080
 ```
-
-erreichbar.
