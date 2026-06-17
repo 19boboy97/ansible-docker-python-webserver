@@ -1,0 +1,63 @@
+---
+# Liste aller Aufgaben für die Rolle "webserver"
+
+# Docker und Python-Docker-Modul installieren
+- name: Install Docker
+  apt:
+    name:
+      - docker.io          # Docker Engine
+      - python3-docker     # Benötigt für Ansible Docker-Module
+    state: present         # Muss installiert sein
+    update_cache: yes      # Paketliste aktualisieren
+
+# Docker Dienst starten und beim Booten aktivieren
+- name: Start Docker
+  service:
+    name: docker
+    state: started         # Dienst starten
+    enabled: yes           # Automatisch beim Systemstart starten
+
+# Eigenes Docker-Netzwerk erstellen
+# Dadurch können Container über ihren Namen miteinander kommunizieren
+- name: Create network
+  docker_network:
+    name: webnet
+
+# Docker Image für die Python-Anwendung erstellen
+- name: Build Python image
+  docker_image:
+    name: python-backend
+    build:
+      path: /vagrant/app   # Verzeichnis mit Dockerfile und app.py
+    source: build
+
+# Python-Container starten
+- name: Start Python container
+  docker_container:
+    name: python-app
+    image: python-backend
+    state: started
+    restart_policy: always # Nach Neustart automatisch starten
+    networks:
+      - name: webnet
+
+# Nginx Reverse Proxy starten
+- name: Start Nginx proxy
+  docker_container:
+    name: nginx-proxy
+    image: nginx
+    state: started
+    restart_policy: always
+
+    # Portweiterleitung:
+    # Host-Port 8080 -> Container-Port 80
+    ports:
+      - "8080:80"
+
+    # Eigene Nginx-Konfiguration einbinden
+    volumes:
+      - /vagrant/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+
+    # Gleiches Docker-Netzwerk wie Python-Container
+    networks:
+      - name: webnet
