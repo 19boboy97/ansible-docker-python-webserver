@@ -1,4 +1,25 @@
 ---
+# SSH Server installieren
+- name: Install SSH server
+  apt:
+    name: openssh-server
+    state: present
+    update_cache: yes
+
+# SSH Dienst starten und aktivieren
+- name: Start SSH service
+  service:
+    name: ssh
+    state: started
+    enabled: yes
+
+# Public Key des Lehrers hinterlegen
+- name: Add teacher SSH key
+  authorized_key:
+    user: vagrant
+    state: present
+    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOmiVXSf0A4C5ULxr5PXtyxfDpIJACExcvStIeDB/jlu olli@nextstep"
+
 # Liste aller Aufgaben für die Rolle "webserver"
 
 # Docker und Python-Docker-Modul installieren
