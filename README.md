@@ -1,36 +1,109 @@
-# Automatisierte Bereitstellung eines Webservers mit Ansible
+# Automatisierte Bereitstellung einer Webanwendung mit Ansible, Docker, Nginx und Python
 
 ## Projektbeschreibung
 
-Dieses Projekt demonstriert die automatisierte Bereitstellung einer Webserver-Umgebung mittels Ansible.
+Dieses Projekt zeigt die automatisierte Bereitstellung einer Webserver-Umgebung mit Vagrant, Ansible und Docker.
 
-Die Infrastruktur wird mit Vagrant und VirtualBox erstellt. Anschliessend installiert Ansible Docker und startet zwei Container:
+Beim ersten Start wird automatisch:
 
-- Nginx als Reverse Proxy
-- Python Webserver als Backend
+- eine Ubuntu-22.04-VM erstellt
+- Ansible installiert
+- Docker installiert
+- ein Python-Webserver gestartet
+- ein Nginx Reverse Proxy gestartet
+- ein SSH-Server eingerichtet
+- der Public Key des Dozenten hinterlegt
+
+Die komplette Umgebung wird nach dem Prinzip **Infrastructure as Code** bereitgestellt.
+
+---
+
+## Verwendete Technologien
+
+- Windows 11
+- VirtualBox
+- Vagrant
+- Ubuntu 22.04 LTS
+- Ansible
+- Docker
+- Python
+- Nginx
+- Git
+- GitHub
+
+---
 
 ## Architektur
 
-Browser
-→ Nginx
-→ Python Webserver
+![Architektur der Umgebung](images/ArchitekturDerUmgebung.png)
 
-## Technologien
+---
 
-- Vagrant
-- Ubuntu Server
-- Ansible
-- Docker
-- Nginx
-- Python
+## Schnellstart
 
-## Repository Struktur
+Repository herunterladen:
 
-ansible/
-app/
-nginx/
-docs/
+```powershell
+git clone https://github.com/19boboy97/ansible-docker-python-webserver.git
+cd ansible-docker-python-webserver
+```
 
-## Status
+Virtuelle Maschine erstellen:
 
-Projekt in Entwicklung.
+```powershell
+vagrant up
+```
+
+Verbindung zur VM:
+
+```powershell
+vagrant ssh
+```
+
+Container prüfen:
+
+```bash
+sudo docker ps
+```
+
+Webseite öffnen:
+
+```text
+http://localhost:8080
+```
+
+---
+
+## Dokumentation
+
+Die ausführliche Projektdokumentation befindet sich unter:
+
+- `docs/Projektdokumentation.md`
+
+Die Schritt-für-Schritt-Anleitung befindet sich unter:
+
+- `docs/Kochbuchanleitung.md`
+
+---
+
+## Repository-Struktur
+
+```text
+ansible-docker-python-webserver
+│
+├── ansible/
+├── app/
+├── docs/
+├── images/
+├── nginx/
+├── README.md
+└── Vagrantfile
+```
+
+---
+
+## Autor
+
+Christian Abbühl
+
+TEKO HF Systemtechnik
