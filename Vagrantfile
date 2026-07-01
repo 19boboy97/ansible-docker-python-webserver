@@ -13,5 +13,8 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     apt update
     apt install -y ansible
+
+    cd /vagrant/ansible/playbooks
+    ANSIBLE_ROLES_PATH=/vagrant/ansible/roles ansible-playbook site.yml -i ../inventory/hosts.yml
   SHELL
 end
