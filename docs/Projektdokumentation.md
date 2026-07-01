@@ -3,205 +3,201 @@
 ## Inhaltsverzeichnis
 
 1. Einleitung
-2. Projektziel
-3. Anforderungen
-4. Verwendete Technologien
-5. Systemarchitektur
-6. Projektstruktur
-7. Umsetzung
-8. Ansible-Automatisierung
-9. Funktionstest
-10. Zielerreichung
-11. GitHub Repository
-12. Fazit
-13. Quellen
+2. Zielsetzung
+3. Verwendete Technologien
+4. Systemarchitektur
+5. Projektstruktur
+6. Erstellung der virtuellen Maschine
+7. Ansible-Konfiguration
+8. Ansible Playbook
+9. Rolle "webserver"
+10. Python-Webanwendung
+11. Nginx Reverse Proxy
+12. SSH-Zugriff
+13. Ausführung des Projekts
+14. Funktionstest
+15. Zielerreichung
+16. GitHub Repository
+17. Fazit
+18. Quellen
 
 ---
 
 # 1. Einleitung
 
-Im Rahmen dieses Projekts wurde eine automatisierte Webserver-Umgebung mit Vagrant, Ansible und Docker erstellt.
+Im Rahmen dieses Projekts wurde eine vollständig automatisierte Webserver-Umgebung erstellt.
 
-Ziel war die Bereitstellung einer virtuellen Ubuntu-Maschine, welche vollständig automatisiert konfiguriert wird. Als Anwendungsbeispiel wurde eine einfache Python-Webanwendung implementiert, welche über einen Nginx Reverse Proxy erreichbar ist.
+Ziel war es, eine Ubuntu-Serverumgebung automatisiert bereitzustellen und anschliessend mittels Ansible zu konfigurieren. Als Anwendungsbeispiel wurde eine einfache Python-Webanwendung entwickelt, welche über einen Nginx Reverse Proxy veröffentlicht wird.
 
-Das Projekt orientiert sich am Konzept **Infrastructure as Code (IaC)**. Infrastruktur und Konfigurationen werden dabei nicht manuell eingerichtet, sondern durch Code beschrieben und automatisiert bereitgestellt.
-
----
-
-# 2. Projektziel
-
-Ziel des Projekts ist die automatisierte Bereitstellung einer Webanwendung mittels Ansible.
-
-Die Umgebung soll:
-
-* automatisch erstellt werden
-* reproduzierbar sein
-* ausschliesslich Open-Source-Technologien verwenden
-* ohne manuelle Konfiguration funktionieren
-
-Als Endergebnis soll ein Benutzer über einen Webbrowser auf die Anwendung zugreifen können.
+Die komplette Infrastruktur wird als Code beschrieben (Infrastructure as Code). Dadurch kann die gesamte Umgebung jederzeit reproduzierbar neu erstellt werden.
 
 ---
 
-# 3. Anforderungen
+# 2. Zielsetzung
+
+Ziel dieses Projekts ist die automatisierte Bereitstellung einer Webanwendung mithilfe moderner DevOps-Werkzeuge.
+
+Anstatt einen Server manuell zu konfigurieren, soll die gesamte Infrastruktur automatisch aufgebaut werden.
 
 ## Funktionale Anforderungen
 
-* Erstellung einer Ubuntu-VM mit Vagrant
-* Installation von Docker über Ansible
-* Automatischer Start des Docker-Dienstes
-* Erstellung eines Docker-Netzwerks
-* Bereitstellung eines Python-Webservers
-* Bereitstellung eines Nginx Reverse Proxys
-* Veröffentlichung der Anwendung über Port 8080
-* Erreichbarkeit der Anwendung über einen Browser
+- Erstellung einer Ubuntu-VM mittels Vagrant
+- Automatische Installation von Ansible
+- Automatische Installation von Docker
+- Erstellung eines Docker-Netzwerks
+- Bereitstellung einer Python-Webanwendung
+- Bereitstellung eines Nginx Reverse Proxy
+- Veröffentlichung der Webseite über HTTP
+- Automatische Einrichtung eines SSH-Servers
+- Automatisches Hinterlegen des Public Keys des Dozenten
 
 ## Nicht-funktionale Anforderungen
 
-* Vollständige Automatisierung
-* Reproduzierbarkeit
-* Infrastructure as Code
-* Versionierung mittels Git und GitHub
-* Verwendung von Open-Source-Technologien
+- Vollständige Automatisierung
+- Reproduzierbarkeit
+- Infrastructure as Code
+- Verwendung von Open-Source-Software
+- Versionsverwaltung mittels Git
+- Dokumentation der gesamten Umgebung
 
 ---
 
-# 4. Verwendete Technologien
+# 3. Verwendete Technologien
 
-| Technologie  | Zweck                |
-| ------------ | -------------------- |
-| Windows 11   | Hostsystem           |
-| VirtualBox   | Virtualisierung      |
-| Vagrant      | Erstellung der VM    |
-| Ubuntu 22.04 | Betriebssystem       |
-| Ansible      | Automatisierung      |
-| Docker       | Containerisierung    |
-| Nginx        | Reverse Proxy        |
-| Python       | Backend-Webanwendung |
-| Git          | Versionsverwaltung   |
-| GitHub       | Repository-Hosting   |
+| Technologie | Zweck |
+|-------------|------|
+| Windows 11 | Hostsystem |
+| VirtualBox | Virtualisierung |
+| Vagrant | Erstellung der virtuellen Maschine |
+| Ubuntu 22.04 LTS | Serversystem |
+| Ansible | Konfigurationsmanagement |
+| Docker | Containerisierung |
+| Nginx | Reverse Proxy |
+| Python | Webanwendung |
+| Git | Versionsverwaltung |
+| GitHub | Codeverwaltung |
 
 ---
 
-# 5. Systemarchitektur
+# 4. Systemarchitektur
 
-## Architekturdiagramm
-![Architekturdiagramm](../images/ArchitekturDerUmgebung.png)
+Die Architektur besteht aus mehreren Komponenten.
 
-Die Umgebung besteht aus einer Ubuntu-VM, welche mit Vagrant erstellt wird.
+Der Entwickler arbeitet auf einem Windows-11-Computer.
 
-Innerhalb der VM installiert Ansible automatisch Docker und startet zwei Container:
+Vagrant erstellt automatisch eine Ubuntu-VM innerhalb von VirtualBox.
 
-* Nginx Reverse Proxy
-* Python-Webserver
+Während der Bereitstellung installiert Vagrant automatisch Ansible.
+
+Anschliessend führt Ansible das Playbook aus.
+
+Dieses installiert Docker und erstellt automatisch zwei Container:
+
+- Python-Webserver
+- Nginx Reverse Proxy
+
+Der Benutzer verbindet sich ausschliesslich mit Nginx.
+
+Nginx leitet sämtliche HTTP-Anfragen intern an den Python-Webserver weiter.
+
+Zusätzlich wird ein SSH-Server eingerichtet, damit sich der Dozent direkt auf die virtuelle Maschine verbinden kann.
+
+## Architektur
+
+![Architektur der Umgebung](../images/ArchitekturDerUmgebung.png)
+
+---
+
+# 5. Projektstruktur
 
 ```text
-Windows 11
+ansible-docker-python-webserver
 │
-├── VirtualBox
-│
-└── Ubuntu VM (Vagrant)
-    │
-    ├── Ansible
-    │
-    └── Docker
-        │
-        ├── Nginx Container
-        │   (Reverse Proxy)
-        │
-        └── Python Container
-            (Backend)
-```
-
-Der Benutzer greift über den Browser auf den Nginx-Container zu. Nginx leitet die Anfrage anschliessend an den Python-Webserver weiter.
-
----
-
-# 6. Projektstruktur
-
-```text
-ansible-docker-python-webserver/
-│
-├── README.md
 ├── Vagrantfile
-├── .gitignore
+├── README.md
 │
-├── ansible/
-│   ├── inventory/
-│   ├── playbooks/
-│   └── roles/
+├── ansible
+│   ├── inventory
+│   ├── playbooks
+│   └── roles
 │
-├── app/
+├── app
 │   ├── app.py
 │   └── Dockerfile
 │
-├── nginx/
+├── nginx
 │   └── nginx.conf
 │
-└── docs/
-    └── Projektdokumentation.md
+├── docs
+│   ├── Projektdokumentation.md
+│   └── Kochbuchanleitung.md
+│
+└── images
+    └── ArchitekturDerUmgebung.png
 ```
+
+Alle Projektdateien befinden sich innerhalb eines GitHub-Repositories.
+
+Dadurch kann das Projekt jederzeit erneut heruntergeladen und auf einem anderen Rechner gestartet werden.
 
 ---
 
-# 7. Umsetzung
+# 6. Erstellung der virtuellen Maschine
 
-## Erstellung der virtuellen Maschine
+Die virtuelle Maschine wird mit Vagrant erstellt.
 
-Start der VM:
+Zum Start genügt folgender Befehl:
 
-```bash
+```powershell
 vagrant up
 ```
 
-Verbindung zur VM:
+Beim ersten Start werden automatisch:
 
-```bash
-vagrant ssh
-```
+- Ubuntu 22.04 heruntergeladen
+- die virtuelle Maschine erstellt
+- Ansible installiert
+- das Ansible-Playbook ausgeführt
 
-Die VM basiert auf Ubuntu 22.04 und wird automatisch über Vagrant bereitgestellt.
-
-## Python-Webanwendung
-
-Die Backend-Anwendung wurde in Python umgesetzt.
-
-Der Webserver lauscht auf Port 5000 und liefert eine einfache HTML-Seite aus.
-
-## Docker
-
-Die Anwendung wird innerhalb eines Docker-Containers ausgeführt.
-
-Zusätzlich wird ein Nginx-Container als Reverse Proxy betrieben.
-
-## Nginx Reverse Proxy
-
-Nginx nimmt HTTP-Anfragen entgegen und leitet diese an den Python-Webserver weiter.
-
-Konfiguration:
-
-```nginx
-location / {
-    proxy_pass http://python-app:5000;
-}
-```
+Der Entwickler muss keine manuellen Installationsschritte innerhalb der VM durchführen.
 
 ---
 
-# 8. Ansible-Automatisierung
+# 7. Ansible-Konfiguration
 
-Das Projekt verwendet ein Inventory, ein Playbook sowie eine eigene Rolle.
+Für die Automatisierung wird Ansible verwendet.
 
-## Inventory
+Die Installation erfolgt automatisch durch Vagrant.
 
-```yaml
-all:
-  hosts:
-    localhost:
-      ansible_connection: local
+Das eigentliche Konfigurationsmanagement übernimmt anschliessend ein Playbook.
+
+Die Rollen befinden sich im Verzeichnis:
+
+```text
+ansible/roles
 ```
 
-## Playbook
+Das Playbook befindet sich unter:
+
+```text
+ansible/playbooks/site.yml
+```
+
+Das Playbook ruft die Rolle **webserver** auf und führt sämtliche Installationsschritte automatisch aus.
+
+---
+
+# 8. Ansible Playbook
+
+Das zentrale Playbook befindet sich unter:
+
+```text
+ansible/playbooks/site.yml
+```
+
+Das Playbook ruft die Rolle **webserver** auf.
+
+Beispiel:
 
 ```yaml
 ---
@@ -212,30 +208,183 @@ all:
     - webserver
 ```
 
-## Aufgaben der Rolle
-
-Die Rolle übernimmt folgende Aufgaben:
-
-1. Installation von Docker
-2. Start des Docker-Dienstes
-3. Erstellung eines Docker-Netzwerks
-4. Erstellung des Python-Docker-Images
-5. Start des Python-Containers
-6. Start des Nginx-Containers
-
-Ausführung:
-
-```bash
-ANSIBLE_ROLES_PATH=/vagrant/ansible/roles ansible-playbook site.yml -i ../inventory/hosts.yml
-```
+Dadurch werden sämtliche Installations- und Konfigurationsschritte automatisch ausgeführt.
 
 ---
 
-# 9. Funktionstest
+# 9. Rolle "webserver"
 
-Nach erfolgreicher Ausführung des Playbooks wurden folgende Tests durchgeführt:
+Die Rolle **webserver** übernimmt die vollständige Konfiguration der Ubuntu-VM.
 
-## Browser-Test
+Folgende Aufgaben werden automatisch ausgeführt:
+
+1. Installation des OpenSSH-Servers
+2. Start und Aktivierung des SSH-Dienstes
+3. Hinterlegen des Public Keys des Dozenten
+4. Installation von Docker
+5. Start des Docker-Dienstes
+6. Erstellung eines Docker-Netzwerks
+7. Erstellen des Python-Docker-Images
+8. Start des Python-Containers
+9. Start des Nginx-Containers
+
+Durch diese Automatisierung ist keine manuelle Konfiguration des Servers mehr notwendig.
+
+---
+
+# 10. Python-Webanwendung
+
+Als Beispielanwendung wurde ein einfacher Webserver mit Python erstellt.
+
+Die Anwendung lauscht auf Port **5000** und liefert eine HTML-Seite aus.
+
+Die Python-Anwendung läuft innerhalb eines Docker-Containers.
+
+Der Container ist ausschliesslich über das interne Docker-Netzwerk erreichbar.
+
+Ein direkter Zugriff von aussen ist nicht vorgesehen.
+
+---
+
+# 11. Nginx Reverse Proxy
+
+Vor dem Python-Webserver befindet sich ein Nginx Reverse Proxy.
+
+Der Benutzer verbindet sich ausschliesslich mit Nginx.
+
+Nginx nimmt die HTTP-Anfragen entgegen und leitet sie an den Python-Webserver weiter.
+
+Die Kommunikation erfolgt über das Docker-Netzwerk.
+
+Beispiel der Weiterleitung:
+
+```nginx
+location / {
+    proxy_pass http://python-app:5000;
+}
+```
+
+Dadurch bleibt die eigentliche Anwendung vom öffentlichen Zugriff getrennt.
+
+---
+
+# 12. SSH-Zugriff
+
+Zusätzlich zur Webserver-Umgebung wurde ein SSH-Zugriff eingerichtet.
+
+Ansible übernimmt automatisch folgende Aufgaben:
+
+- Installation des OpenSSH-Servers
+- Start des SSH-Dienstes
+- Aktivierung beim Systemstart
+- Hinterlegen des Public Keys des Dozenten
+
+Dadurch kann sich der Dozent ohne Passwort auf die virtuelle Maschine verbinden.
+
+Damit die VM direkt aus dem gemeinsamen WLAN erreichbar ist, wurde zusätzlich im Vagrantfile ein **public_network** konfiguriert.
+
+Die VM erhält dadurch eine eigene IP-Adresse im Netzwerk.
+
+Die aktuelle IP-Adresse kann mit folgendem Befehl angezeigt werden:
+
+```bash
+hostname -I
+```
+
+Beispiel:
+
+```text
+10.0.2.15 10.100.44.21 172.17.0.1 172.18.0.1
+```
+
+Der Zugriff erfolgt anschliessend beispielsweise mit:
+
+```bash
+ssh vagrant@10.100.44.21
+```
+
+Voraussetzung ist, dass der passende private Schlüssel zum hinterlegten Public Key verwendet wird.
+
+---
+
+# 13. Ausführung des Projekts
+
+Die komplette Umgebung kann mit wenigen Befehlen gestartet werden.
+
+Repository herunterladen:
+
+```powershell
+git clone https://github.com/19boboy97/ansible-docker-python-webserver.git
+```
+
+Ins Projekt wechseln:
+
+```powershell
+cd ansible-docker-python-webserver
+```
+
+Virtuelle Maschine starten:
+
+```powershell
+vagrant up
+```
+
+Nach erfolgreichem Start kann eine Verbindung zur VM hergestellt werden:
+
+```powershell
+vagrant ssh
+```
+
+Die laufenden Docker-Container können anschliessend überprüft werden:
+
+```bash
+sudo docker ps
+```
+
+Die Ausgabe zeigt den Python-Webserver sowie den Nginx Reverse Proxy.
+
+---
+
+# 14. Funktionstest
+
+Nach erfolgreicher Ausführung des Projekts wurde die Umgebung getestet.
+
+## Prüfung der laufenden Container
+
+Mit folgendem Befehl können die laufenden Docker-Container angezeigt werden:
+
+```bash
+sudo docker ps
+```
+
+Es werden zwei Container ausgeführt:
+
+- python-app
+- nginx-proxy
+
+Dadurch wird bestätigt, dass sowohl die Python-Webanwendung als auch der Nginx Reverse Proxy erfolgreich gestartet wurden.
+
+## Prüfung des SSH-Zugriffs
+
+Der SSH-Dienst kann mit folgendem Befehl überprüft werden:
+
+```bash
+sudo systemctl status ssh
+```
+
+Die Ausgabe zeigt, dass der Dienst aktiv ist.
+
+Anschliessend wurde überprüft, ob der Public Key des Dozenten korrekt hinterlegt wurde:
+
+```bash
+cat ~/.ssh/authorized_keys
+```
+
+Dabei wurde sowohl der Standard-Schlüssel des Benutzers **vagrant** als auch der Public Key des Dozenten angezeigt.
+
+## Prüfung der Webseite
+
+Die Webanwendung wurde anschliessend im Browser getestet.
 
 Aufruf:
 
@@ -243,82 +392,81 @@ Aufruf:
 http://localhost:8080
 ```
 
-Ergebnis:
+Die Webseite wurde erfolgreich angezeigt.
 
-Die Python-Webanwendung wurde erfolgreich angezeigt.
-
-## Docker-Test
-
-Kontrolle der Container:
-
-```bash
-sudo docker ps
-```
-
-Ergebnis:
-
-* Python-Container aktiv
-* Nginx-Container aktiv
-
-## Ansible-Test
-
-Die Ausführung endete erfolgreich:
-
-```text
-PLAY RECAP
-
-localhost : ok=7 changed=5 failed=0
-```
+Damit konnte bestätigt werden, dass Nginx die HTTP-Anfragen korrekt an den Python-Webserver weiterleitet.
 
 ---
 
-# 10. Zielerreichung
+# 15. Zielerreichung
 
-Alle definierten Projektziele wurden erreicht.
+Alle definierten Projektziele konnten erfolgreich umgesetzt werden.
 
-| Ziel                          | Status |
-| ----------------------------- | ------ |
-| Ubuntu-VM erstellt            | ✅      |
-| Docker installiert            | ✅      |
-| Docker-Netzwerk erstellt      | ✅      |
-| Python-Webserver gestartet    | ✅      |
-| Nginx Reverse Proxy gestartet | ✅      |
-| Browserzugriff möglich        | ✅      |
-| Automatisierung mit Ansible   | ✅      |
-| Versionsverwaltung mit GitHub | ✅      |
+Folgende Anforderungen wurden erfüllt:
+
+- Ubuntu-VM wird automatisch mit Vagrant erstellt
+- Ansible wird automatisch installiert
+- Docker wird automatisch installiert
+- Docker-Netzwerk wird automatisch erstellt
+- Python-Webanwendung wird automatisch bereitgestellt
+- Nginx Reverse Proxy wird automatisch gestartet
+- SSH-Server wird automatisch eingerichtet
+- Public Key des Dozenten wird automatisch hinterlegt
+- Die Umgebung ist vollständig reproduzierbar
+- Sämtlicher Quellcode wird über Git und GitHub versioniert
+
+Zusätzlich konnte das Projekt erfolgreich auf einem zweiten Windows-11-Rechner getestet werden.
+
+Dadurch wurde bestätigt, dass die komplette Umgebung anhand der Dokumentation reproduzierbar aufgebaut werden kann.
 
 ---
 
-# 11. GitHub Repository
+# 16. GitHub Repository
 
-Das Projekt wird vollständig über Git und GitHub versioniert.
+Der vollständige Quellcode befindet sich in einem öffentlichen GitHub-Repository.
 
 Repository:
 
-https://github.com/19boboy97/ansible-docker-python-webserver
+Repository: <https://github.com/19boboy97/ansible-docker-python-webserver>
 
-Alle Änderungen wurden mittels Commits dokumentiert und nachvollziehbar gespeichert.
+Durch Git und GitHub werden sämtliche Änderungen nachvollziehbar dokumentiert.
 
----
-
-# 12. Fazit
-
-Mit Vagrant, Ansible und Docker konnte eine vollständig automatisierte Webserver-Umgebung erfolgreich umgesetzt werden.
-
-Die Lösung zeigt den praktischen Einsatz moderner DevOps-Werkzeuge und verdeutlicht die Vorteile von Infrastructure as Code. Durch die Verwendung von Ansible können sämtliche Installations- und Konfigurationsschritte reproduzierbar ausgeführt werden.
-
-Die Umgebung kann jederzeit neu erstellt und erweitert werden.
+Zusätzlich ermöglicht das Repository den einfachen Download sowie den erneuten Aufbau der kompletten Umgebung.
 
 ---
 
-# 13. Quellen
+# 17. Fazit
 
-* https://www.ansible.com
-* https://docs.ansible.com
-* https://www.docker.com
-* https://docs.docker.com
-* https://developer.hashicorp.com/vagrant
-* https://ubuntu.com
-* https://nginx.org
-* https://www.python.org
-* https://github.com
+Im Rahmen dieses Projekts wurde eine vollständig automatisierte Webserver-Umgebung entwickelt.
+
+Durch den Einsatz von Vagrant, Ansible und Docker konnte der gesamte Bereitstellungsprozess automatisiert werden.
+
+Anstelle einer manuellen Serverkonfiguration genügt heute der Befehl:
+
+```powershell
+vagrant up
+```
+
+Die virtuelle Maschine wird erstellt, Ansible installiert und das Playbook ausgeführt.
+
+Dieses installiert Docker, richtet den SSH-Zugriff ein und startet automatisch die benötigten Container.
+
+Die entwickelte Lösung ist reproduzierbar, einfach erweiterbar und entspricht dem Konzept **Infrastructure as Code**.
+
+Das Projekt zeigt, wie moderne DevOps-Werkzeuge zusammenarbeiten und den Aufwand für die Bereitstellung von Servern und Anwendungen deutlich reduzieren können.
+
+---
+
+# 18. Quellen
+
+- https://developer.hashicorp.com/vagrant
+- https://www.virtualbox.org
+- https://ubuntu.com
+- https://www.ansible.com
+- https://docs.ansible.com
+- https://www.docker.com
+- https://docs.docker.com
+- https://nginx.org
+- https://www.python.org
+- https://git-scm.com
+- https://github.com
