@@ -1,27 +1,32 @@
-# Kochbuchanleitung – Umgebung auf einem neuen Windows 11 Client starten
+# Kochbuchanleitung
 
-## Ziel
+## Automatisierte Bereitstellung einer Webanwendung mit Ansible, Docker, Nginx und Python
 
-Mit dieser Anleitung kann das Projekt auf einem neuen Windows 11 Computer vollständig eingerichtet und gestartet werden.
+---
 
-Nach erfolgreicher Durchführung ist die Anwendung erreichbar unter:
+# Ziel
 
-```text
-http://localhost:8080
-```
+Mit dieser Anleitung kann das Projekt auf einem beliebigen Windows-11-Computer vollständig neu aufgebaut werden.
+
+Nach Abschluss läuft:
+
+- Ubuntu 22.04
+- Docker
+- Python-Webserver
+- Nginx Reverse Proxy
+- SSH-Server
+
+Die komplette Konfiguration erfolgt automatisch über Vagrant und Ansible.
 
 ---
 
 # Voraussetzungen
 
-Folgende Software muss installiert sein:
+Folgende Software muss auf dem Windows-Computer installiert sein:
 
-| Software           | Zweck                            |
-| ------------------ | -------------------------------- |
-| Git                | Repository herunterladen         |
-| VirtualBox         | Virtualisierung                  |
-| Vagrant            | Erstellung und Verwaltung der VM |
-| Internetverbindung | Download von Ubuntu und Paketen  |
+- Git
+- VirtualBox
+- Vagrant
 
 ---
 
@@ -29,7 +34,7 @@ Folgende Software muss installiert sein:
 
 PowerShell öffnen.
 
-In ein gewünschtes Verzeichnis wechseln:
+In den gewünschten Ordner wechseln:
 
 ```powershell
 cd C:\GithubRepo
@@ -49,106 +54,111 @@ cd ansible-docker-python-webserver
 
 ---
 
-# 2. Projekt aktualisieren
+# 2. Projektstruktur kontrollieren
 
-Vor jedem Start sollte geprüft werden, ob neue Änderungen im Repository vorhanden sind.
+Die Projektstruktur sollte ungefähr wie folgt aussehen:
 
-Neueste Version von GitHub herunterladen:
-
-```powershell
-git pull
+```text
+ansible-docker-python-webserver
+│
+├── Vagrantfile
+├── README.md
+│
+├── ansible
+│   ├── inventory
+│   ├── playbooks
+│   └── roles
+│
+├── app
+│   ├── app.py
+│   └── Dockerfile
+│
+├── nginx
+│   └── nginx.conf
+│
+├── docs
+│   ├── Projektdokumentation.md
+│   └── Kochbuchanleitung.md
+│
+└── images
+    └── ArchitekturDerUmgebung.png
 ```
-
-Dadurch werden alle aktuellen Änderungen übernommen.
 
 ---
 
-# 3. Virtuelle Maschine erstellen oder starten
+# 3. Virtuelle Maschine erstellen
 
-VM starten:
+Zum Erstellen der virtuellen Maschine genügt folgender Befehl:
 
 ```powershell
 vagrant up
 ```
 
-Beim ersten Start werden automatisch:
+Beim **ersten Start** werden automatisch:
 
-* Ubuntu 22.04 heruntergeladen
-* Die virtuelle Maschine erstellt
-* Die VM gestartet
-* Ansible installiert
+- Ubuntu 22.04 heruntergeladen
+- die virtuelle Maschine erstellt
+- die VM gestartet
+- Ansible installiert
+- das Ansible-Playbook ausgeführt
+- Docker installiert
+- der SSH-Server installiert
+- der Docker-Dienst gestartet
+- das Docker-Netzwerk erstellt
+- das Python-Docker-Image erstellt
+- der Python-Container gestartet
+- der Nginx-Container gestartet
+- der Public Key des Dozenten hinterlegt
 
-Dieser Schritt kann mehrere Minuten dauern.
+Es sind keine manuellen Installationsschritte innerhalb der virtuellen Maschine notwendig.
+
+Bei einem erneuten Aufruf von
+
+```powershell
+vagrant up
+```
+
+wird die bereits vorhandene virtuelle Maschine lediglich gestartet. Die Provisionierung wird dabei standardmässig **nicht erneut ausgeführt**.
+
+Soll die komplette Konfiguration erneut angewendet werden, kann dies mit folgendem Befehl erfolgen:
+
+```powershell
+vagrant provision
+```
+
+Alternativ kann die virtuelle Maschine neu gestartet und gleichzeitig erneut provisioniert werden:
+
+```powershell
+vagrant reload --provision
+```
+
+Soll die virtuelle Maschine vollständig neu erstellt werden, kann sie zuerst gelöscht werden:
+
+```powershell
+vagrant destroy -f
+```
+
+Anschliessend wird sie erneut aufgebaut mit:
+
+```powershell
+vagrant up
+```
 
 ---
 
-# 4. Verbindung zur VM herstellen
+# 4. Verbindung zur VM
+
+Nach erfolgreichem Start:
 
 ```powershell
 vagrant ssh
 ```
 
-Nach erfolgreicher Anmeldung erscheint:
-
-```text
-vagrant@ansible-webserver:~$
-```
+Nun befindet man sich auf der Ubuntu-VM.
 
 ---
 
-# 5. Ansible prüfen
-
-Kontrolle:
-
-```bash
-ansible --version
-```
-
-Wenn eine Versionsnummer angezeigt wird, ist Ansible installiert.
-
-Falls Ansible nicht installiert ist:
-
-```bash
-sudo apt update
-sudo apt install -y ansible
-```
-
-Danach erneut prüfen:
-
-```bash
-ansible --version
-```
-
----
-
-# 6. Zum Playbook wechseln
-
-```bash
-cd /vagrant/ansible/playbooks
-```
-
----
-
-# 7. Ansible Playbook ausführen
-
-Playbook starten:
-
-```bash
-ANSIBLE_ROLES_PATH=/vagrant/ansible/roles ansible-playbook site.yml -i ../inventory/hosts.yml
-```
-
-Das Playbook führt automatisch folgende Aufgaben aus:
-
-* Docker installieren
-* Docker-Dienst starten
-* Docker-Netzwerk erstellen
-* Python Docker-Image erstellen
-* Python-Container starten
-* Nginx-Container starten
-
----
-
-# 8. Container prüfen
+# 5. Docker prüfen
 
 Laufende Container anzeigen:
 
@@ -156,40 +166,93 @@ Laufende Container anzeigen:
 sudo docker ps
 ```
 
-Erwartetes Ergebnis:
+Erwartete Ausgabe:
 
-```text
-python-app
-nginx-proxy
-```
-
-Beide Container müssen den Status **Up** besitzen.
+- python-app
+- nginx-proxy
 
 ---
 
-# 9. Anwendung testen
+# 6. SSH prüfen
 
-Auf dem Windows-Host einen Browser öffnen.
+SSH-Dienst kontrollieren:
 
-Adresse aufrufen:
+```bash
+sudo systemctl status ssh
+```
+
+Public Keys anzeigen:
+
+```bash
+cat ~/.ssh/authorized_keys
+```
+
+Der Public Key des Dozenten sollte dort vorhanden sein.
+
+---
+
+# 7. IP-Adresse der VM anzeigen
+
+Die VM erhält durch das **public_network** zusätzlich eine eigene IP-Adresse im Netzwerk.
+
+Anzeige:
+
+```bash
+hostname -I
+```
+
+Beispiel:
+
+```text
+10.0.2.15 10.100.44.21 172.17.0.1 172.18.0.1
+```
+
+Die relevante Adresse ist die WLAN-IP.
+
+Im Beispiel:
+
+```text
+10.100.44.21
+```
+
+---
+
+# 8. SSH-Zugriff für den Dozenten
+
+Die aktuelle IP-Adresse der virtuellen Maschine kann jederzeit mit folgendem Befehl angezeigt werden:
+
+```bash
+hostname -I
+```
+
+Der Dozent kann sich anschliessend beispielsweise mit folgendem Befehl verbinden:
+
+```bash
+ssh vagrant@10.100.44.21
+```
+
+Voraussetzung:
+
+- gleicher Netzwerkbereich
+- passender privater Schlüssel zum hinterlegten Public Key
+
+---
+
+# 9. Webseite testen
+
+Im Browser öffnen:
 
 ```text
 http://localhost:8080
 ```
 
-Erwartetes Ergebnis:
-
-```text
-Python Webserver läuft
-Diese Seite wird vom Python-Backend ausgeliefert.
-Der Zugriff erfolgt über Nginx als Reverse Proxy.
-```
+Die Python-Webanwendung sollte angezeigt werden.
 
 ---
 
-# 10. Projekt stoppen
+# 10. VM stoppen
 
-VM stoppen:
+Virtuelle Maschine herunterfahren:
 
 ```powershell
 vagrant halt
@@ -197,159 +260,55 @@ vagrant halt
 
 ---
 
-# 11. Projekt erneut starten
-
-VM starten:
+# 11. VM erneut starten
 
 ```powershell
 vagrant up
 ```
 
-Verbindung herstellen:
-
-```powershell
-vagrant ssh
-```
-
-Falls Änderungen am Ansible-Code vorgenommen wurden:
-
-```bash
-cd /vagrant/ansible/playbooks
-
-ANSIBLE_ROLES_PATH=/vagrant/ansible/roles ansible-playbook site.yml -i ../inventory/hosts.yml
-```
-
 ---
 
-# 12. Umgebung vollständig neu erstellen
+# 12. VM löschen
 
-Falls die Umgebung komplett neu aufgebaut werden soll:
-
-VM löschen:
+Soll die VM vollständig entfernt werden:
 
 ```powershell
 vagrant destroy -f
 ```
 
-Danach erneut erstellen:
+Danach kann sie jederzeit erneut erstellt werden:
 
 ```powershell
 vagrant up
 ```
 
-Anschliessend:
+---
+
+# 13. Repository aktualisieren
+
+Änderungen übernehmen:
 
 ```powershell
-vagrant ssh
-```
-
-Und erneut das Playbook ausführen.
-
----
-
-# Troubleshooting
-
-## Repository existiert bereits
-
-Fehlermeldung:
-
-```text
-destination path already exists
-```
-
-Lösung:
-
-```powershell
-Remove-Item -Recurse -Force ansible-docker-python-webserver
-```
-
-Danach erneut:
-
-```powershell
-git clone https://github.com/19boboy97/ansible-docker-python-webserver.git
-```
-
----
-
-## Ansible nicht installiert
-
-Installation:
-
-```bash
-sudo apt update
-sudo apt install -y ansible
-```
-
----
-
-## Docker läuft nicht
-
-Status prüfen:
-
-```bash
-sudo systemctl status docker
-```
-
-Docker starten:
-
-```bash
-sudo systemctl start docker
-```
-
----
-
-## Container fehlen
-
-Playbook erneut ausführen:
-
-```bash
-cd /vagrant/ansible/playbooks
-
-ANSIBLE_ROLES_PATH=/vagrant/ansible/roles ansible-playbook site.yml -i ../inventory/hosts.yml
-```
-
----
-
-## Port 8080 bereits belegt
-
-Falls Port 8080 bereits verwendet wird, muss die Portweiterleitung im Vagrantfile angepasst werden.
-
-Beispiel:
-
-```ruby
-config.vm.network "forwarded_port", guest: 8080, host: 8081
-```
-
-Danach ist die Anwendung erreichbar unter:
-
-```text
-http://localhost:8081
+git status
+git add .
+git commit -m "Beschreibung der Änderungen"
+git push
 ```
 
 ---
 
 # Ergebnis
 
-Nach erfolgreicher Durchführung dieser Anleitung läuft folgende Umgebung:
+Nach erfolgreicher Durchführung stehen automatisch folgende Komponenten bereit:
 
-```text
-Windows 11
-│
-├── VirtualBox
-│
-└── Ubuntu VM
-    │
-    ├── Ansible
-    │
-    └── Docker
-        │
-        ├── Nginx Reverse Proxy
-        │
-        └── Python Webserver
-```
+- Ubuntu 22.04 LTS
+- Docker
+- Python-Webserver
+- Nginx Reverse Proxy
+- Docker-Netzwerk
+- SSH-Server
+- SSH-Zugriff für den Dozenten
+- GitHub-Repository
+- Vollständig reproduzierbare Entwicklungsumgebung
 
-Die Anwendung ist anschliessend erreichbar unter:
-
-```text
-http://localhost:8080
-```
+Das Projekt kann dadurch jederzeit reproduzierbar auf einem neuen Windows-Computer aufgebaut werden. Dank der Automatisierung sind nur wenige Befehle erforderlich, um die komplette Umgebung bereitzustellen.
