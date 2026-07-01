@@ -425,8 +425,6 @@ Dadurch wurde bestätigt, dass die komplette Umgebung anhand der Dokumentation r
 
 Der vollständige Quellcode befindet sich in einem öffentlichen GitHub-Repository.
 
-Repository:
-
 Repository: <https://github.com/19boboy97/ansible-docker-python-webserver>
 
 Durch Git und GitHub werden sämtliche Änderungen nachvollziehbar dokumentiert.
